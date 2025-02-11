@@ -55,8 +55,9 @@ def api_stack():
 def api_move():
     data = request.json
     direction = data.get("direction")
+    magnitude = data.get("magnitude")
     if direction not in ["F","B","R","L"]:
-        result = move(direction)
+        result = move(direction,magnitude)
         return jsonify({"result": result})
     else:
         return jsonify({"error": "Wrong direction"}), 400
