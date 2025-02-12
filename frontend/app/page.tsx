@@ -7,16 +7,35 @@ import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsTrigger } from "@/components/ui/tabs";
 import { TabsList } from "@radix-ui/react-tabs";
 import { ArrowLeft, ArrowRight } from "lucide-react";
-import { SetStateAction, useState } from "react";
+import { useState } from "react";
 
 export default function Home() {
+
+  const stackingObjects = ['Cube', 'Sphere', 'Prism']
 
   const [jointPosOriginal, setJointPosOriginal] = useState([0,0,0,0,0,0,0,0]);
   const [jointPosNew, setJointPosNew] = useState([0,0,0,0,0,0,0,0]);
   const [armCoordsOriginal, setArmCoordsOriginal] = useState([0,0,0,0]);
   const [armCoordsNew, setArmCoordsNew] = useState([0,0,0,0]);
-  const [isObjectActive, setIsObjectActive] = useState<number | undefined>();
-  
+  const [objectActive, setObjectActive] = useState<number | undefined>();
+  const [isStackActive, setIsStackActive] = useState<number | undefined>();
+  const [stack, setStack] = useState<string[]>([]);
+
+  function addToStack(){
+
+    if (objectActive != undefined && stack.length < 5){
+      setStack([...stack, String(stackingObjects[objectActive])]);
+    }
+    setObjectActive(undefined);
+
+  }
+
+  function removeFromStack(){
+    if (isStackActive != undefined){
+      setStack(stack.filter((_, i) => i != isStackActive));
+    }
+    setIsStackActive(undefined);
+  }
 
 
   return (
@@ -84,8 +103,7 @@ export default function Home() {
 
           <TabsContent value="arm" className="h-full">
               
-              <CardContent className="space-y-4 w-full">
-                
+              <CardContent className="w-full space-y-4">
                 <div className="flex grid grid-cols-3 space-x-4 w-full text-xl font-semibold text-center">
                   <div></div>
                   <div>Position</div>
@@ -96,6 +114,7 @@ export default function Home() {
 
                 {['X Coord', 'Y Coord', 'Z Coord','Grasp',].map((joint, i) => {
                 return (
+
                 <div key={i} className="flex grid grid-cols-3 space-x-4 w-full">
                   <div className="flex-1/6 text-center">{joint}</div>
                   <div>
@@ -115,8 +134,8 @@ export default function Home() {
                   } )) } />
                   </div>
                 </div>
-                )})}
 
+                )})}
               </CardContent>
 
               <CardFooter className="text-right justify-end flex">
@@ -129,31 +148,31 @@ export default function Home() {
               
               <CardContent className="space-y-4 w-full">
                 
-                <div className="flex justify-evenly w-full">
+                <div className="flex justify-evenly w-full h-[50vh]">
                   <div className="flex flex-col w-5/12">
                     <div className="text-xl font-semibold my-2 text-center space-y-2">Object</div>
                     {
-                      [1,2,3].map((object, i) => {
+                      stackingObjects.map((object, i) => {
                         return (
-                            <div key={i} className={`flex-1/6 text-left border my-2 p-2 rounded-lg ${(isObjectActive==i) && 'bg-blue-200'}`} onClick={()=>setIsObjectActive(i)}>{object}</div>
+                            <div key={i} className={`flex-1/6 text-left border my-2 p-2 rounded-lg ${(objectActive==i) && 'bg-blue-200'}`} onClick={()=>setObjectActive(i)}>{object}</div>
                         )
                       })
                     }
                   </div>
 
                   <div className="flex flex-col h-full w-1/16 space-y-4 justify-center my-auto">
-                    <Button><ArrowRight/></Button>
-                    <Button><ArrowLeft/></Button>
+                    <Button onClick={addToStack}><ArrowRight/></Button>
+                    <Button onClick={removeFromStack}><ArrowLeft/></Button>
                   </div>
 
                   <div className="flex flex-col w-5/12">
                     
-                    <div className="text-xl font-semibold my-2 text-center space-y-2">Object</div>
+                    <div className="text-xl font-semibold my-2 text-center space-y-2">Stack</div>
                     
                     {
-                      [1,2,3].map((object, i) => {
+                      stack.map((object, i) => {
                         return (
-                            <div key={i} className="flex-1/6 text-left border my-2 p-2 rounded-lg">{object}</div>
+                          <div key={i} className={`flex-1/6 text-left border my-2 p-2 rounded-lg ${(isStackActive==i) && 'bg-blue-200'}`} onClick={()=>setIsStackActive(i)}>{object}</div>
                         )
                       })
                     }
@@ -161,8 +180,13 @@ export default function Home() {
                   </div>
 
                 </div>
-
               </CardContent>
+
+              <CardFooter className="text-right justify-end flex">
+                <Button>Stack</Button>
+              </CardFooter>
+
+
           </TabsContent>
 
           </Card>
