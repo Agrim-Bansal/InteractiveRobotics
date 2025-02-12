@@ -251,6 +251,19 @@ def api_getcoordinates():
     result = "successful"
     return jsonify({"coordinates": coordinates})
 
+
+
+@app.route('/stacktheobjects', methods=['POST'])
+def api_stacktheobjects():
+    data = request.json
+    obj = data.get("objects")
+    if curr_object:
+        drop()
+        curr_object=""
+    for i in range(1,obj.length()):
+        stacktheobjects(obj[i],obj[i-1])
+    
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8000, debug=True, threaded=False)
 

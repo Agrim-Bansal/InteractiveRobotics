@@ -104,7 +104,17 @@ def drop():
         CURRENT_PICKED_OBJECT = -1
     time.sleep(0.5)
 
-def stack(name, onObjName):
+def stack(onObjName):
+    onObj = sim.getObject(onObjName)
+    moveJoints([None, 0, 0, 0, -90, None])
+    POS = sim.getObjectPosition(onObj, -1)
+    POS[2] = POS[2] + 0.21
+    moveArc(POS)
+    drop()
+    POS[2] = POS[2] + 0.2
+    moveLine(POS)
+
+def stacktheobjects(name, onObjName):
     obj = sim.getObject(name)
     onObj = sim.getObject(onObjName)
     pickup(name)
