@@ -9,6 +9,11 @@ from T import *
 
 curr_object=""
 
+@app.route('/')
+def get_client_ip():
+    client_ip = request.remote_addr
+    return f" IP: {client_ip}"
+
 @app.route('/pickup', methods=['POST'])
 def api_pickup():
     data = request.json
@@ -174,13 +179,13 @@ def moveinpath( path_type, **kwargs):
         centre = float(kwargs.get("centre"))
         if radius is None or centre is None:
             return "Missing parameters for circle"
-        moveincircle(radius,centre)
+        # moveincircle(radius,centre)
     elif path_type == "square":
         length =float( kwargs.get("length"))
         centre = float(kwargs.get("centre"))
         if length is None:
             return "Missing length for square"
-        moveinsquare(length,centre)
+        # moveinsquare(length,centre)
     else:
         return "Unsupported path type"
     return "successful"
@@ -225,7 +230,7 @@ def api_moveinpath():
 def api_alljoints():
     data = request.json
     degree = data.get("alldegrees")
-    if degree.size() is not 6:
+    if degree.size()!=6:
         return jsonify({"error": "invalid input"}), 400
     moveJoints(degree)
 
@@ -262,9 +267,14 @@ def api_stacktheobjects():
         curr_object=""
     for i in range(1,obj.length()):
         stacktheobjects(obj[i],obj[i-1])
-    
+
+@app.route('/getalljoints', methods=['GET'])
+def api_getalljoints():
+    joint_positions = getJointPositions()  
+    result = "successful"
+    return jsonify({"result": result, "joint_positions": joint_positions})
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8000, debug=True, threaded=False)
+    app.run(host='0.0.0.0', port=5000, debug=True, threaded=False)
 
 
