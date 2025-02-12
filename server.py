@@ -1,8 +1,10 @@
 from flask import Flask, request, jsonify, redirect, url_for
 
 app = Flask(__name__)
-
+from T import *
 #obj=cuboid,prism,cylinder
+
+# Assume these methods are already defined
 
 
 curr_object=""
@@ -15,7 +17,8 @@ def api_pickup():
     
     if obj and (not curr_object):
         curr_object=obj
-        result = pickup(obj)
+        pickup(obj)
+        result = "successful"
         return jsonify({"result": result})
     elif (not obj):
         return jsonify({"error": "Missing object in request"}), 400
@@ -25,8 +28,9 @@ def api_pickup():
 @app.route('/drop', methods=['POST'])
 def api_drop():
     if (not curr_object):
-        result = drop()
+        drop()
         curr_object=""
+        result = "successful"
         return jsonify({"result": result})
     else:
         return jsonify({"error": "Pls pick an object first"}),400
@@ -40,8 +44,9 @@ def api_stack():
         if second_object:
             if second_object!=curr_object:
                 second_object="/"+second_object
-                result = stack(second_object)
+                stack(second_object)
                 curr_object=""
+                result = "successful"
                 return jsonify({"result": result})
             else:
                 return jsonify({"error": "select different object"}), 400
@@ -55,68 +60,198 @@ def api_stack():
 def api_move():
     data = request.json
     direction = data.get("direction")
-    magnitude = data.get("magnitude")
+    m = float(data.get("magnitude"))
     if direction not in ["F","B","R","L"]:
-        result = move(direction,magnitude)
-        return jsonify({"result": result})
-    else:
         return jsonify({"error": "Wrong direction"}), 400
+    x,y,z=getTipPosition()
+    if(direction=='F'):
+        y=y+m*y/(math.sqrt(x*x+y*y))
+        x=x+m*x/(math.sqrt(x*x+y*y))
+    elif(direction=='B'):
+        y=y-m*y/(math.sqrt(x*x+y*y))
+        x=x-m*x/(math.sqrt(x*x+y*y))
+    elif(direction=='L'):
+        x=x-m*y/(math.sqrt(x*x+y*y))
+        y=y+m*x/(math.sqrt(x*x+y*y))
+    elif(direction=='R'):
+        x=x+m*y/(math.sqrt(x*x+y*y))
+        y=y-m*x/(math.sqrt(x*x+y*y))
+    
+    moveLine(direction,[x,y,z])
+    result = "successful"
+    return jsonify({"result": result})
+    
+        
 
 @app.route('/joint1', methods=['POST'])
 def api_joint1():
     data = request.json
-    direction = data.get("direction")
-    if direction not in ("F", "B"):
-        return jsonify({"error": "Missing or invalid 'direction'"}), 400
-    result = joint1(direction)
+    degree = data.get("degree")
+    if degree is None:
+        return jsonify({"error": "Missing 'degree' field"}), 400
+    moveJoint(1, degree)
+    result = "successful"
     return jsonify({"result": result})
 
 @app.route('/joint2', methods=['POST'])
 def api_joint2():
     data = request.json
-    direction = data.get("direction")
-    if direction not in ("F", "B"):
-        return jsonify({"error": "Missing or invalid 'direction'"}), 400
-    result = joint2(direction)
+    degree = data.get("degree")
+    if degree is None:
+        return jsonify({"error": "Missing 'degree' field"}), 400
+    moveJoint(2, degree)
+    result = "successful"
     return jsonify({"result": result})
 
 @app.route('/joint3', methods=['POST'])
 def api_joint3():
     data = request.json
-    direction = data.get("direction")
-    if direction not in ("F", "B"):
-        return jsonify({"error": "Missing or invalid 'direction'"}), 400
-    result = joint3(direction)
+    degree = data.get("degree")
+    if degree is None:
+        return jsonify({"error": "Missing 'degree' field"}), 400
+    moveJoint(3, degree)
+    result = "successful"
     return jsonify({"result": result})
 
 @app.route('/joint4', methods=['POST'])
 def api_joint4():
     data = request.json
-    direction = data.get("direction")
-    if direction not in ("F", "B"):
-        return jsonify({"error": "Missing or invalid 'direction'"}), 400
-    result = joint4(direction)
+    degree = data.get("degree")
+    if degree is None:
+        return jsonify({"error": "Missing 'degree' field"}), 400
+    moveJoint(4, degree)
+    result = "successful"
     return jsonify({"result": result})
 
 @app.route('/joint5', methods=['POST'])
 def api_joint5():
     data = request.json
-    direction = data.get("direction")
-    if direction not in ("F", "B"):
-        return jsonify({"error": "Missing or invalid 'direction'"}), 400
-    result = joint5(direction)
+    degree = data.get("degree")
+    if degree is None:
+        return jsonify({"error": "Missing 'degree' field"}), 400
+    moveJoint(5, degree)
+    result = "successful"
     return jsonify({"result": result})
 
 @app.route('/joint6', methods=['POST'])
 def api_joint6():
     data = request.json
-    direction = data.get("direction")
-    if direction not in ("F", "B"):
-        return jsonify({"error": "Missing or invalid 'direction'"}), 400
-    result = joint6(direction)
+    degree = data.get("degree")
+    if degree is None:
+        return jsonify({"error": "Missing 'degree' field"}), 400
+    moveJoint(6, degree)
+    result = "successful"
     return jsonify({"result": result})
 
+
+@app.route('/movebycoordinates', methods=['POST'])
+def api_movebycoordinates():
+    data = request.json
+    obj = data.get("object")
+    x = data.get("x")
+    y = data.get("y")
+    z = data.get("z")
+    if(curr_object):
+        return jsonify({"error": "First drop the object"}), 400
+    if obj is None or x is None or y is None or z is None:
+        return jsonify({"error": "Missing required fields (object, x, y, z)"}), 400
+    obj = "/" + obj
+    pickup(obj)
+    x=float(x)
+    y=float(y)
+    z=float(z)
+    x1,y1,z1=getObjectPosition(obj)
+    if((x*x1+y*y1)>0):
+        moveLine([x,y,z])
+    else:
+        moveArc([x,y,z])
+    result = "successful"
+    return jsonify({"result": result})
+
+def moveinpath( path_type, **kwargs):
+    if path_type == "circle":
+        radius = float(kwargs.get("radius"))
+        centre = float(kwargs.get("centre"))
+        if radius is None or centre is None:
+            return "Missing parameters for circle"
+        moveincircle(radius,centre)
+    elif path_type == "square":
+        length =float( kwargs.get("length"))
+        centre = float(kwargs.get("centre"))
+        if length is None:
+            return "Missing length for square"
+        moveinsquare(length,centre)
+    else:
+        return "Unsupported path type"
+    return "successful"
+
+@app.route('/moveinpath', methods=['POST'])
+def api_moveinpath():
+    data = request.json
+    path_type = data.get("path")
+    x,y,z=getTipPosition()
+    if path_type is None:
+        return jsonify({"error": "Missing path"}), 400
+    if path_type == "circle":
+        r = float(data.get("radius"))
+        centre = data.get("centre")
+        if r is None:
+            return jsonify({"error": "Missing radius for circle path"}), 400
+        if centre is None:
+            if ((x*x+y*y)>r*r+1):
+                centre=[x-r*x/(math.sqrt(x*x+y*y)),y-r*y/(math.sqrt(x*x+y*y)),z]
+            else:
+                centre=[x+r*x/(math.sqrt(x*x+y*y)),y+r*y/(math.sqrt(x*x+y*y)),z]
+
+        moveinpath(path_type, radius=r, centre=centre)
+    elif path_type == "square":
+        length =float( data.get("length"))
+        
+        if length is None:
+            return jsonify({"error": "Missing length for square path"}), 400
+        r=length/2
+        if ((x*x+y*y)>r*r+1):
+             centre=[x-r*x/(math.sqrt(x*x+y*y)),y-r*y/(math.sqrt(x*x+y*y)),z]
+        else:
+             centre=[x+r*x/(math.sqrt(x*x+y*y)),y+r*y/(math.sqrt(x*x+y*y)),z]
+        moveinpath( path_type, length=length)
+    else:
+        return jsonify({"error": "Unsupported path type"}), 400
+    return jsonify({"result": "successful"})
+
+
+
+@app.route('/alljoints', methods=['POST'])
+def api_alljoints():
+    data = request.json
+    degree = data.get("alldegrees")
+    if degree.size() is not 6:
+        return jsonify({"error": "invalid input"}), 400
+    moveJoints(degree)
+
+@app.route('/getcoordinates', methods=['POST'])
+def api_getcoordinates():
+    data = request.json
+    target = data.get("target")
+    if not target:
+        return jsonify({"error": "Missing 'target' field"}), 400
+
+    # If target is a joint (e.g., "joint1"), use a simple static mapping.
+    if target.startswith("joint"):
+        i=int(target[5])-48
+        l=getJointPositions
+        if i in range(1,7):
+            coordinates = l[i]
+        else:
+            return jsonify({"error": "Invalid joint target"}), 400
+    else:
+        # For objects, prepend '/' if needed and get coordinates.
+        obj =  "/" + target
+        coordinates = getObjectPosition(obj)
+    result = "successful"
+    return jsonify({"coordinates": coordinates})
+
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True, threaded=False)
+    app.run(host='0.0.0.0', port=8000, debug=True, threaded=False)
 
 
