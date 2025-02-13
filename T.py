@@ -57,6 +57,9 @@ def moveLine(TARGET_POS, delay = 0, stepsPerUnit = 500):
     ikOn()
     # Get the current position of the target dummy
     CURRENT_POS = sim.getObjectPosition(tip, -1)
+    
+    print(type(CURRENT_POS[0]))
+    print(type(TARGET_POS[0]))
     # Compute the path
     dist = math.sqrt(sum([(TARGET_POS[i] - CURRENT_POS[i])**2 for i in range(3)]))
     steps = int(stepsPerUnit * dist)
