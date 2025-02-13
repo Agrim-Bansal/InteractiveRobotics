@@ -38,6 +38,7 @@ def api_pickup():
     data = request.json
     print(data)
     obj = data.get("object") 
+    obj.capitalize()
     
     if obj :
         curr_object=obj
@@ -71,24 +72,19 @@ def api_stack():
     print(curr_object+"hello")
     data = request.json
     second_object = data.get("object")
-    if curr_object:
-        print("1")
-        if second_object:
-            print(2)
-            if second_object!=curr_object:
-                print(3)
-                second_object="/"+second_object
-                stack(second_object)
-                curr_object=""
-                result = "successful" 
-                return jsonify({"result": result})
-            else:
-                return jsonify({"error": "select different object"}), 400
-
+    if second_object:
+        if second_object!=curr_object:
+            second_object="/"+second_object
+            stack(second_object)
+            curr_object=""
+            result = "successful" 
+            return jsonify({"result": result})
         else:
-            return jsonify({"error": "Missing 'second_object' in request"}), 400
+            return jsonify({"error": "select different object"}), 400
+
     else:
-        return jsonify({"error": "pick an object first"}), 400
+        return jsonify({"error": "Missing 'second_object' in request"}), 400
+
 
 @app.route('/move', methods=['POST'])
 def api_move():
@@ -323,7 +319,7 @@ def api_moveobject11():
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8000, debug=True, threaded=False)
+    app.run(host='0.0.0.0', port=8000, debug=False, threaded=False)
 
 
 
