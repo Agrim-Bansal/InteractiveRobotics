@@ -23,16 +23,17 @@ def verify():
 @app.route('/pickup', methods=['POST'])
 def api_pickup():
     global curr_object
+    if curr_object:
+        drop()
     curr_object=""
     print(request)
     data = request.json
     print(data)
-    obj = data.get("object")
-    print(obj)
-    obj="/"+obj
+    obj = data.get("object") 
     
     if obj :
         curr_object=obj
+        obj="/"+obj
         print(obj)
         print("reachedhere")
         pickup(obj)
@@ -47,8 +48,6 @@ def api_pickup():
 @app.route('/drop', methods=['POST'])
 def api_drop():
     global curr_object
-    print(curr_object)
-    curr_object="1"
     if (curr_object):
         drop()
         curr_object=""
@@ -61,6 +60,7 @@ def api_drop():
 @app.route('/stack', methods=['POST'])
 def api_stack():
     global curr_object
+    print(curr_object+"hello")
     data = request.json
     second_object = data.get("object")
     if curr_object:
@@ -103,7 +103,7 @@ def api_move():
         x=x+m*y/(math.sqrt(x*x+y*y))
         y=y-m*x/(math.sqrt(x*x+y*y))
     
-    moveLine(direction,[x,y,z])
+    moveLine([x,y,z])
     result = "successful"
     return jsonify({"result": result})
     
@@ -188,20 +188,13 @@ def api_movebycoordinates():
     result = "successful"
     return jsonify({"result": result})
 
-def moveinpath( path_type, **kwargs):
+def moveinpath( path_type, radius,centre):
     if path_type == "circle":
-        radius = float(kwargs.get("radius"))
-        centre = float(kwargs.get("centre"))
-        if radius is None or centre is None:
-            return "Missing parameters for circle"
         drawCircle(centre,radius)
     elif path_type == "square":
-        length =float( kwargs.get("length"))
-        centre = float(kwargs.get("centre"))
-        if length is None:
-            return "Missing length for square"
-        # moveinsquare(length,centre)
-    else:
+        drawSquare(centre,radius)
+    elif path_type=="hexagon":
+        drawHexagon(centre,radius)
         return "Unsupported path type"
     return "successful"
 
@@ -210,31 +203,30 @@ def api_moveinpath():
     data = request.json
     path_type = data.get("path")
     x,y,z=getTipPosition()
+    r = 0.1
     if path_type is None:
         return jsonify({"error": "Missing path"}), 400
     if path_type == "circle":
-        r = float(data.get("radius"))
-        centre = data.get("centre")
-        if r is None:
-            return jsonify({"error": "Missing radius for circle path"}), 400
-        if centre is None:
-            if ((x*x+y*y)>r*r+1):
+            if ((x*x+y*y)>r*r+0.1):
                 centre=[x-r*x/(math.sqrt(x*x+y*y)),y-r*y/(math.sqrt(x*x+y*y)),z]
             else:
                 centre=[x+r*x/(math.sqrt(x*x+y*y)),y+r*y/(math.sqrt(x*x+y*y)),z]
 
-        moveinpath(path_type, radius=r, centre=centre)
+            moveinpath(path_type, r, centre)
     elif path_type == "square":
-        length =float( data.get("length"))
-        
-        if length is None:
-            return jsonify({"error": "Missing length for square path"}), 400
-        r=length/2
-        if ((x*x+y*y)>r*r+1):
+        if ((x*x+y*y)>r*r+0.1):
              centre=[x-r*x/(math.sqrt(x*x+y*y)),y-r*y/(math.sqrt(x*x+y*y)),z]
         else:
              centre=[x+r*x/(math.sqrt(x*x+y*y)),y+r*y/(math.sqrt(x*x+y*y)),z]
-        moveinpath( path_type, length=length)
+        moveinpath( path_type, r,centre)
+    elif path_type == "hexagon":
+        if ((x*x+y*y)>r*r+0.1):
+                centre=[x-r*x/(math.sqrt(x*x+y*y)),y-r*y/(math.sqrt(x*x+y*y)),z]
+        else:
+            centre=[x+r*x/(math.sqrt(x*x+y*y)),y+r*y/(math.sqrt(x*x+y*y)),z]
+
+        moveinpath(path_type, r, centre)
+
     else:
         return jsonify({"error": "Unsupported path type"}), 400
     return jsonify({"result": "successful"})
@@ -265,7 +257,6 @@ def api_getcoordinates():
         else:
             return jsonify({"error": "Invalid joint target"}), 400
     else:
-        # For objects, prepend '/' if needed and get coordinates.
         obj =  "/" + target
         coordinates = getObjectPosition(obj)
     result = "successful"
@@ -281,8 +272,8 @@ def api_stacktheobjects():
     if curr_object:
         drop()
         curr_object=""
-    for i in range(1,obj.length()):
-        stacktheobjects(obj[i],obj[i-1])
+    for i in range(1,len(obj)):
+        stacktheobjects(f"/{obj[i]}",f"/{obj[i-1]}")
 
 @app.route('/getalljoints', methods=['GET'])
 def api_getalljoints():
@@ -291,7 +282,40 @@ def api_getalljoints():
     jointPosDeg = list(map(lambda x : round(x*180/3.14159, 2), joint_positions))
     return jsonify({"result": result, "joint_positions": jointPosDeg})
 
+
+@app.route('/moveobject', methods=['POST'])
+def api_moveobject11():
+    global curr_object
+    data = request.json
+    obj=data.get("object")
+    obj="/"+obj
+    x,y,z=data.get("l")
+    x=float(x)
+    y=float(y)
+    z=float(z)
+    if curr_object:
+        drop()
+        curr_object=""
+    pickup(obj)
+
+
+    x1,y1,z1=getTipPosition()
+
+    if((x*x1+y*y1)>0):
+        moveLine([x,y,z])
+    else:
+          moveArc([x,y,z])
+    print(x,y,z)
+    drop()
+
+    result = "successful"
+    return jsonify({"result": result})
+
+
+
+
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True, threaded=False)
+    app.run(host='0.0.0.0', port=8000, debug=True, threaded=False)
+
 
 
