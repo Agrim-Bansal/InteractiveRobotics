@@ -9,12 +9,11 @@ import { TabsList } from "@radix-ui/react-tabs";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { useEffect, useState } from "react";
 import { AlertDialog, AlertDialogAction, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { assert } from "console";
 
 
 export default function Home() {
 
-  const stackingObjects = ['Cube', 'Sphere', 'Prism']
+
   const [url, setUrl] = useState<string | undefined>();
   const [verified, setVerified] = useState<boolean | undefined>();
   const [jointPosOriginal, setJointPosOriginal] = useState([0,0,0,0,0,0,0,0]);
@@ -24,6 +23,7 @@ export default function Home() {
   const [objectActive, setObjectActive] = useState<number | undefined>();
   const [isStackActive, setIsStackActive] = useState<number | undefined>();
   const [stack, setStack] = useState<string[]>([]);
+  const [stackingObjects, setStackingObjects] = useState<string[]>(['Cuboid', 'Cylinder', 'Prism', 'Bowl', 'Cup1']);
 
   useEffect(()=>{
     getPosition();
@@ -38,7 +38,8 @@ export default function Home() {
 
   function addToStack(){
     if (objectActive != undefined && stack.length < 5){
-      setStack([...stack, String(stackingObjects[objectActive])]);
+      setStack([String(stackingObjects[objectActive]), ...stack]);
+      setStackingObjects(stackingObjects.filter((_, i) => i != objectActive));
     }
     setObjectActive(undefined);
   }
@@ -46,6 +47,7 @@ export default function Home() {
   function removeFromStack(){
     if (isStackActive != undefined){
       setStack(stack.filter((_, i) => i != isStackActive));
+      setStackingObjects([...stackingObjects, stack[isStackActive]]);
     }
     setIsStackActive(undefined);
   }
@@ -54,21 +56,7 @@ export default function Home() {
     console.log(jointPosOriginal);
   }, [jointPosOriginal]) ;
 
-  async function jointsCall(){
-    console.log(url);
-    await fetch(`http://${url}/alljoints`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        degree: jointPosNew
-      }) 
-    })
-    setJointPosOriginal(jointPosNew);
-
-  }
-
+  
   async function verifyUrl(url:string){
     try{
       const res = await fetch(`http://${url}/verify`);
@@ -84,6 +72,21 @@ export default function Home() {
       setVerified(false);
     }
   }
+  
+  async function jointsCall(){
+    console.log(url);
+    await fetch(`http://${url}/alljoints`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        degree: jointPosNew
+      }) 
+    })
+    setJointPosOriginal(jointPosNew);
+
+  }
 
   async function coordinateCall(){
     await fetch(`http://${url}/movebycoordinates`, {
@@ -92,14 +95,24 @@ export default function Home() {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-          x: armCoordsNew[0],
-          y: armCoordsNew[1],
-          z: armCoordsNew[2],
+          l : [armCoordsNew[0], armCoordsNew[1], armCoordsNew[2]],
       }) 
     })
     setArmCoordsOriginal(armCoordsNew);
   }
 
+  async function stackCall(){
+    await fetch(`http://${url}/stacktheobjects`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+          objects : stack,
+      }) 
+    })
+
+  }
 
   return (
     <div className="w-full flex items-center flex-col h-full">
@@ -151,7 +164,7 @@ export default function Home() {
           <TabsList className="grid grid-cols-3 bg-muted p-1 w-fit mx-auto">
             <TabsTrigger value="joint">Joint Control</TabsTrigger>
             <TabsTrigger value="arm">Arm Control</TabsTrigger>
-            <TabsTrigger value="object">Object Control</TabsTrigger>
+            <TabsTrigger value="stack">Stacking</TabsTrigger>
           </TabsList>
 
           <Card className="py-4 mx-16 px-4 h-full">
@@ -241,7 +254,7 @@ export default function Home() {
 
           </TabsContent>
 
-          <TabsContent value="object">
+          <TabsContent value="stack">
               
               <CardContent className="space-y-4 w-full">
                 
@@ -262,7 +275,7 @@ export default function Home() {
                     <Button onClick={removeFromStack}><ArrowLeft/></Button>
                   </div>
 
-                  <div className="flex flex-col w-5/12">
+                  <div className="flex justify-between flex-col w-5/12">
                     
                     <div className="text-xl font-semibold my-2 text-center space-y-2">Stack</div>
                     
@@ -280,7 +293,7 @@ export default function Home() {
               </CardContent>
 
               <CardFooter className="text-right justify-end flex">
-                <Button>Stack</Button>
+                <Button onClick={()=>stackCall()}>Stack</Button>
               </CardFooter>
 
 
