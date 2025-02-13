@@ -172,18 +172,16 @@ def api_joint6():
 @app.route('/movebycoordinates', methods=['POST'])
 def api_movebycoordinates():
     data = request.json
-    x,y,z=data.get("l")
-    x=float(x)
-    y=float(y)
-    z=float(z)
-    x1,y1,z1=getTipPosition()
-
-    if((x*x1+y*y1)>0):
-        moveLine([x,y,z])
+    # Retrieve list input and scale each element by dividing by 100
+    x, y, z = data.get("l")
+    x = float(x) / 100
+    y = float(y) / 100
+    z = float(z) / 100
+    x1, y1, z1 = getTipPosition()
+    if ((x*x1 + y*y1) > 0):
+        moveLine([x, y, z])
     else:
-          moveArc([x,y,z])
-    print(x,y,z)
-
+        moveArc([x, y, z])
     result = "successful"
     return jsonify({"result": result})
 
@@ -289,27 +287,24 @@ def api_getalljoints():
 def api_moveobject11():
     global curr_object
     data = request.json
-    obj=data.get("object")
-    obj="/"+obj
-    x,y,z=data.get("l")
-    x=float(x)
-    y=float(y)
-    z=float(z)
+    obj = data.get("object")
+    obj.capitalize()
+    obj = "/" + obj
+    # Retrieve list input and scale each element by dividing by 100
+    x, y, z = data.get("l")
+    x = float(x) / 100
+    y = float(y) / 100
+    z = float(z) / 100
     if curr_object:
         drop()
-        curr_object=""
+        curr_object = ""
     pickup(obj)
-
-
-    x1,y1,z1=getTipPosition()
-
-    if((x*x1+y*y1)>0):
-        moveLine([x,y,z])
+    x1, y1, z1 = getTipPosition()
+    if ((x*x1 + y*y1) > 0):
+        moveLine([x, y, z])
     else:
-          moveArc([x,y,z])
-    print(x,y,z)
+        moveArc([x, y, z])
     drop()
-
     result = "successful"
     return jsonify({"result": result})
 
