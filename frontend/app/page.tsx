@@ -23,9 +23,9 @@ export default function Home() {
   const [objectActive, setObjectActive] = useState<number | undefined>();
   const [isStackActive, setIsStackActive] = useState<number | undefined>();
   const [stack, setStack] = useState<string[]>([]);
-  const [stackingObjects, setStackingObjects] = useState<string[]>(['Cuboid', 'Cylinder', 'Prism', 'Bowl', 'Cup1']);
+  const [stackingObjects, setStackingObjects] = useState<string[]>(['Pot','Cuboid', 'Cylinder', 'Prism', 'Bowl', 'Cup1', 'Cup0', 'Cup2', 'Cup3']);
   const [objectActiveManipulate, setObjectActiveManipulate] = useState<number | undefined>();
-  const objectList = ['Cuboid', 'Cylinder', 'Prism', 'Bowl', 'Cup1']
+  const objectList = ['Cuboid', 'Pot', 'Cylinder', 'Prism', 'Bowl', 'Cup1', 'Cup0', 'Cup2', 'Cup3'];
   const predefPaths = ['Circle', 'Square', 'Hexagon', 'Heart'];
   const [activePath, setActivePath] = useState<number | undefined>();
   const [objMoveCoord, setObjMoveCoord] = useState([0,0,0]);
@@ -107,13 +107,14 @@ export default function Home() {
   }
 
   async function stackCall(){
+    const revList = stack.slice().reverse();
     await fetch(`http://${url}/stacktheobjects`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-          objects : stack,
+          objects : revList,
       }) 
     })
 
@@ -219,7 +220,7 @@ export default function Home() {
                 
                 <Separator/>
 
-                {['Joint 1', 'Joint 2', 'Joint 2','Joint 2','Joint 2','Joint 2'].map((joint, i) => {
+                {['Joint 1', 'Joint 2', 'Joint 3','Joint 4','Joint 5','Joint 6'].map((joint, i) => {
                 return (
                 <div key={i} className="flex grid grid-cols-3 space-x-4 w-full ">
                   <div className="text-center text-base h-full align-middle flex flex-col justify-center">{joint}</div>
