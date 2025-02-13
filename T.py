@@ -11,8 +11,9 @@ PICKUP_PRESETS = {
     '/Cup1': (0.07, 15),
     '/Cup2': (0.07, 15),
     '/Cup3': (0.07, 15),
-    '/Bowl': (0.1, 30),
+    '/Bowl': (0.06, 30),
     '/Prism': (0.07, 30),
+    '/Cylinder': (0.03, 0)
 }
 
 
@@ -108,6 +109,7 @@ def drop():
     time.sleep(0.5)
 
 def stack(onObjName):
+    moveJoints([None, 0, 0, 0, -90, None])
     onObj = sim.getObject(onObjName)
     moveJoints([None, 0, 0, 0, -90, None])
     POS = sim.getObjectPosition(onObj, -1)
@@ -120,6 +122,7 @@ def stack(onObjName):
 def stacktheobjects(name, onObjName):
     obj = sim.getObject(name)
     onObj = sim.getObject(onObjName)
+    moveJoints([None, 0, 0, 0, -90, None])
     pickup(name)
     moveJoints([None, 0, 0, 0, -90, None])
     POS = sim.getObjectPosition(onObj, -1)
