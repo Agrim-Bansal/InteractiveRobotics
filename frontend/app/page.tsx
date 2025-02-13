@@ -28,6 +28,7 @@ export default function Home() {
   const objectList = ['Cuboid', 'Cylinder', 'Prism', 'Bowl', 'Cup1']
   const predefPaths = ['Circle', 'Square', 'Hexagon', 'Heart'];
   const [activePath, setActivePath] = useState<number | undefined>();
+  const [objMoveCoord, setObjMoveCoord] = useState([0,0,0]);
 
   useEffect(()=>{
     getPosition();
@@ -133,6 +134,22 @@ export default function Home() {
     })
   }
 
+  async function objectMoveCall(){
+    if (objectActiveManipulate == undefined){
+      return;
+    }
+    await fetch(`http://${url}/moveobject`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+          object : objectList[objectActiveManipulate],
+          l : [objMoveCoord[0], objMoveCoord[1], objMoveCoord[2]],
+      }) 
+    })
+  }
+
   return (
     <div className="w-full flex items-center flex-col h-full">
 
@@ -209,6 +226,9 @@ export default function Home() {
                   <div> 
                     <Input type='number' value={ jointPosNew[i] } onChange={(e) => setJointPosNew(jointPosNew.map((v, j) => {
                     if (j == i){
+                      if (Number.isNaN(e.target.valueAsNumber)){
+                        return 0;
+                      }
                       return e.target.valueAsNumber;
                     }
                     return v;
@@ -217,6 +237,9 @@ export default function Home() {
                   <div>
                   <Input type='number' value={jointPosNew[i] - jointPosOriginal[i]} onChange={(e) => setJointPosNew(jointPosNew.map((v, j) => {
                     if (j == i){
+                      if (Number.isNaN(e.target.valueAsNumber)){
+                        return jointPosOriginal[j];
+                      }
                       return jointPosOriginal[j] + e.target.valueAsNumber;
                     }
                     return v;
@@ -251,6 +274,9 @@ export default function Home() {
                   <div>
                   <Input type='number' value={ armCoordsNew[i] } onChange={(e) => setArmCoordsNew(armCoordsNew.map((v, j) => {
                     if (j == i){
+                      if (Number.isNaN(e.target.valueAsNumber)){
+                        return 0;
+                      }
                       return e.target.valueAsNumber;
                     }
                     return v;
@@ -259,6 +285,9 @@ export default function Home() {
                   <div>
                   <Input type='number' value={armCoordsNew[i] - armCoordsOriginal[i]} onChange={(e) => setArmCoordsNew(armCoordsNew.map((v, j) => {
                     if (j == i){
+                      if (Number.isNaN(e.target.valueAsNumber)){
+                        return armCoordsOriginal[j];
+                      }
                       return armCoordsOriginal[j] + e.target.valueAsNumber;
                     }
                     return v;
@@ -305,10 +334,15 @@ export default function Home() {
                 <div key={i} className="flex grid grid-cols-2 space-x-4 w-full">
                   <div className="flex-1/6 text-center">{joint}</div>
                   <div>
-                  <Input type='number' value={ armCoordsNew[i] } onChange={(e) => setArmCoordsNew(armCoordsNew.map((v, j) => {
+                  <Input type='number' value={ objMoveCoord[i] } onChange={(e) => setObjMoveCoord(objMoveCoord.map((v, j) => {
+                    
                     if (j == i){
+                      if (Number.isNaN(e.target.valueAsNumber)){
+                        return 0;
+                      }
                       return e.target.valueAsNumber;
                     }
+
                     return v;
                   } )) } />
                   </div>
@@ -324,7 +358,7 @@ export default function Home() {
               </CardContent>
 
               <CardFooter className="text-right justify-end flex">
-                <Button onClick={coordinateCall}>Move the Object</Button>
+                <Button onClick={objectMoveCall}>Move the Object</Button>
               </CardFooter>
 
           </TabsContent>
