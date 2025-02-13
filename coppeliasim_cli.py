@@ -8,7 +8,7 @@ import json
 
 
 def aesthetic():
-    print("""
+    print(Fore.WHITE + """
 
                                 ____                       _ _       ____  _           
                                 / ___|___  _ __  _ __   ___| (_) __ _/ ___|(_)_ __ ___  
@@ -25,13 +25,30 @@ def aesthetic():
     print(Fore.GREEN + 'Success: Robot is active')
 
 
-def ipcheck(ip):
+def ipcheck(ip_address):
+    url = f"http://{ip_address}:{ip_port}/verify"  # Example API
+    response = requests.get(url)
+    print(response.status_code)
     try:
-        ipaddress.ip_address(ip)
-    except ValueError:
+        res=response.json()
+        
+        if(res["message"]=="InteractiveRobotics"):
+            print("Connected to robot")
+        else:
+            print("1 Invalid IP address! Please enter a valid IP address.")
+            ipget()
+    except Exception as e:
+        print(e)
         print("Invalid IP address! Please enter a valid IP address.")
-        exit()
+        ipget()
 
+
+def ipget():
+    global ip_address
+    global ip_port
+    ip_address = input("Enter the IP address of the robot: ").strip()
+    ip_port=input("Enter the port: ").strip()
+    ipcheck(ip_address)
 
 def jsonconverter(args):
     return json.dumps(vars(args))
@@ -106,7 +123,6 @@ def main():
 
         # Drop
         parser_drop = subparsers.add_parser("drop", help="Drop an object",exit_on_error=False)
-        parser_drop.add_argument("-d", "--drop", choices=["yes", "no"], required=True, help="Confirm drop")
 
         # Stack
         parser_stack = subparsers.add_parser("stack", help="Stack an object",exit_on_error=False)
@@ -123,7 +139,7 @@ def main():
         parser_joint.add_argument("-deg", "--degree", type=float, required=True, help="Rotation angle")
 
         #linemovment
-        parser_line = subparsers.add_parser("line", help="Move the robot in a diffrerent curve",exit_on_error=False)
+        parser_line = subparsers.add_parser("path", help="Move the robot in a diffrerent curve",exit_on_error=False)
         parser_line.add_argument("-ml", "--moveline", choices=["circle","square","heart","hexagon"], required=True, help="Direction")
 
         parser_multistack = subparsers.add_parser("multistack", help="Stack multiple objects , Enter multiple object to stack at once",exit_on_error=False)
@@ -140,7 +156,7 @@ def main():
             if not user_input:
                 continue
             if user_input[0].lower() == "exit":
-                print("Exiting...")
+                print("Exiting...","robot is going back to sleep....zzzzz")
                 break
 
             args = parser.parse_args(user_input)
@@ -175,9 +191,8 @@ def main():
 
 # Run the setup
 aesthetic()
-ip_address = input("Enter the IP address of the robot: ").strip()
-ip_port=input("Enter the port: ").strip()
-#ipcheck(ip_address)
+ipget()
+
 
 # Start the interactive loop
 if __name__ == "__main__":
