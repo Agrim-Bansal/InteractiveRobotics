@@ -151,6 +151,35 @@ export default function Home() {
     })
   }
 
+  async function pickObjectCall() { 
+    if (objectActiveManipulate == undefined){
+      return;
+    }
+    await fetch(`http://${url}/pickup`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+          object : objectList[objectActiveManipulate],
+      }) 
+    })
+  }
+
+  async function dropObjectCall() { 
+
+    await fetch(`http://${url}/drop`, {
+      method: 'POST', 
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+          object : objectList[objectActiveManipulate],
+      })
+    })
+  }
+
+
   return (
     <div className="w-full flex items-center flex-col h-full">
 
@@ -313,6 +342,7 @@ export default function Home() {
 
               <div className="flex flex-col w-5/12">
                     <div className="text-xl font-semibold my-2 text-center space-y-2">Object</div>
+                    <div className="h-[50vh] overflow-y-auto">
                     {
                       objectList.map((object, i) => {
                         return (
@@ -320,6 +350,7 @@ export default function Home() {
                         )
                       })
                     }
+                      </div>
               </div>
 
               <div className="space-y-4">
@@ -358,7 +389,9 @@ export default function Home() {
 
               </CardContent>
 
-              <CardFooter className="text-right justify-end flex">
+              <CardFooter className="text-right justify-end flex space-x-4">
+                <Button onClick={dropObjectCall}>Drop The Object</Button>
+                <Button onClick={pickObjectCall}>Pick The Object</Button>
                 <Button onClick={objectMoveCall}>Move the Object</Button>
               </CardFooter>
 
