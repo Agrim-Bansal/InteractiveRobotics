@@ -22,7 +22,7 @@ def get_client_ip():
         ip = "127.0.0.1"  # Fallback
     finally:
         s.close()
-    return ip
+    return ip+":8000"
 
 @app.route('/verify/')
 def verify():
@@ -283,6 +283,8 @@ def api_stacktheobjects():
         curr_object=""
     for i in range(1,len(obj)):
         stacktheobjects(f"/{obj[i]}",f"/{obj[i-1]}")
+    result="successful"
+    return jsonify({"result": result})
 
 @app.route('/getalljoints', methods=['GET'])
 def api_getalljoints():
