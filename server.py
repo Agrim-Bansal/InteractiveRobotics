@@ -209,6 +209,7 @@ def api_moveinpath():
     if path_type is None:
         return jsonify({"error": "Missing path"}), 400
     if path_type == "circle":
+            r=0.2
             if ((x*x+y*y)>r*r+0.1):
                 centre=[x-r*x/(math.sqrt(x*x+y*y)),y-r*y/(math.sqrt(x*x+y*y)),z]
             else:

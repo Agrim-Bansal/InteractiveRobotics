@@ -7,13 +7,14 @@ import json
 
 PICKUP_PRESETS = {
     '/Cuboid': (0.05, 0, 0.1),
-    '/Cup0': (0.07, 15, 0.1),
-    '/Cup1': (0.07, 15, 0.1),
-    '/Cup2': (0.07, 15, 0.1),
+    '/Cup0': (0.07, 30, 0.05),
+    '/Cup1': (0.04, 10, 0.05),
+    '/Cup2': (0.07, 15, 0.07),
     '/Cup3': (0.07, 15, 0.1),
     '/Bowl': (0.06, 30, 0.1),
     '/Prism': (0.07, 30, 0.1),
-    '/Cylinder': (0.03, 0, 0.1)
+    '/Cylinder': (0.03, 0, 0.1),
+    '/Pot': (0.09, 20, 0.1)
 }
 
 
@@ -181,6 +182,7 @@ def drawCircle(center, radius):
     # Follow the path
     for i in range(len(path)):
         sim.setObjectPosition(target, -1, path[i])
+        time.sleep(0.01)
 
 # def drawVerticalCircle(center, radius):
 #     ikOn()
@@ -200,17 +202,16 @@ def drawCircle(center, radius):
 #         sim.setObjectPosition(target, -1, path[i])
 
 def drawSquare(center, length):
-    moveArc([center[0] + length/2, center[1] + length/2, center[2]])
+    moveArc([center[0] + length/2, center[1] + length/2, center[2]], delay=0.2)
     moveLine([center[0] - length/2, center[1] + length/2, center[2]], delay=0.2)
     moveLine([center[0] - length/2, center[1] - length/2, center[2]], delay=0.2)
-    moveLine([center[0] + length/2, center[1] - length/2, center[2]], )
-    moveLine([center[0] + length/2, center[1] + length/2, center[2]])
-    moveLine(center)
+    moveLine([center[0] + length/2, center[1] - length/2, center[2]], delay=0.2)
+    moveLine([center[0] + length/2, center[1] + length/2, center[2]], delay=0.2)
 
 def drawHexagon(center, radius):
     moveArc([center[0] + radius, center[1], center[2]])
-    for i in range(6):
-        moveLine([center[0] + radius * math.cos(i * math.pi / 3), center[1] + radius * math.sin(i * math.pi / 3), center[2]])
+    for i in [1,2,3,4,5,0]:
+        moveLine([center[0] + radius * math.cos(i * math.pi / 3), center[1] + radius * math.sin(i * math.pi / 3), center[2]], delay=0.15)
 
 def drawHeart():
     ikOn()
@@ -226,7 +227,7 @@ def drawHeart():
     # Follow the path
     for i in range(len(path)):
         sim.setObjectPosition(target, -1, path[i])
-        time.sleep(0.01)
+        time.sleep(0.001)
 
 sim.callScriptFunction('open', GRIPPER_CONT)
 # pickup('/Cuboid', fingerAngle=0)
@@ -261,5 +262,5 @@ sim.callScriptFunction('open', GRIPPER_CONT)
 
 # stack('/Cuboid', '/Cylinder')
 # stack('/Prism', '/Cuboid')
-print(getJointPositions())
-drawCircle([0.3, 0.4, 0.5], 0.2)
+# print(getJointPositions())
+# drawCircle([0.3, 0.4, 0.5], 0.2)
