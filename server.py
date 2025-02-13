@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify, redirect, url_for
 from flask_cors import CORS
+import socket
 app = Flask(__name__)
 CORS(app)
 from T import *
@@ -12,8 +13,16 @@ curr_object=""
 
 @app.route('/')
 def get_client_ip():
-    client_ip = request.remote_addr
-    return f" IP: {client_ip}:8000"
+    # Get the local IP address of the machine
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    try:
+        s.connect(("8.8.8.8", 80))  # Connects to an external server
+        ip = s.getsockname()[0]  # Gets the assigned IP
+    except Exception:
+        ip = "127.0.0.1"  # Fallback
+    finally:
+        s.close()
+    return ip
 
 @app.route('/verify/')
 def verify():
