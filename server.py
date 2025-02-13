@@ -16,6 +16,10 @@ def get_client_ip():
     client_ip = request.remote_addr
     return f" IP: {client_ip}:5000"
 
+@app.route('/verify/')
+def verify():
+    return {'message' : "InteractiveRobotics"}
+
 @app.route('/pickup', methods=['POST'])
 def api_pickup():
     global curr_object
@@ -284,7 +288,8 @@ def api_stacktheobjects():
 def api_getalljoints():
     joint_positions = getJointPositions()  
     result = "successful"
-    return jsonify({"result": result, "joint_positions": joint_positions})
+    jointPosDeg = list(map(lambda x : round(x*180/3.14159, 2), joint_positions))
+    return jsonify({"result": result, "joint_positions": jointPosDeg})
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True, threaded=False)

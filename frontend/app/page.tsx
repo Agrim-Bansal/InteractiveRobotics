@@ -7,27 +7,40 @@ import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsTrigger } from "@/components/ui/tabs";
 import { TabsList } from "@radix-ui/react-tabs";
 import { ArrowLeft, ArrowRight } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { AlertDialog, AlertDialogAction, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { assert } from "console";
+
 
 export default function Home() {
 
   const stackingObjects = ['Cube', 'Sphere', 'Prism']
-
+  const [url, setUrl] = useState<string | undefined>();
+  const [verified, setVerified] = useState<boolean | undefined>();
   const [jointPosOriginal, setJointPosOriginal] = useState([0,0,0,0,0,0,0,0]);
-  const [jointPosNew, setJointPosNew] = useState([0,0,0,0,0,0,0,0]);
+  const [jointPosNew, setJointPosNew] = useState([0,0,0,0,0,0]);
   const [armCoordsOriginal, setArmCoordsOriginal] = useState([0,0,0,0]);
   const [armCoordsNew, setArmCoordsNew] = useState([0,0,0,0]);
   const [objectActive, setObjectActive] = useState<number | undefined>();
   const [isStackActive, setIsStackActive] = useState<number | undefined>();
   const [stack, setStack] = useState<string[]>([]);
 
-  function addToStack(){
+  useEffect(()=>{
+    getPosition();
+  }, [url])
 
+  async function getPosition(){
+    const res = await fetch(`http://${url}/getalljoints`)
+    const data = await res.json();
+    setJointPosOriginal(data.joint_positions);
+    setJointPosNew(data.joint_positions);
+  }
+
+  function addToStack(){
     if (objectActive != undefined && stack.length < 5){
       setStack([...stack, String(stackingObjects[objectActive])]);
     }
     setObjectActive(undefined);
-
   }
 
   function removeFromStack(){
@@ -37,9 +50,93 @@ export default function Home() {
     setIsStackActive(undefined);
   }
 
+  useEffect(()=>{
+    console.log(jointPosOriginal);
+  }, [jointPosOriginal]) ;
+
+  async function jointsCall(){
+    console.log(url);
+    await fetch(`http://${url}/alljoints`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        degree: jointPosNew
+      }) 
+    })
+    setJointPosOriginal(jointPosNew);
+
+  }
+
+  async function verifyUrl(url:string){
+    try{
+      const res = await fetch(`http://${url}/verify`);
+      const data = await res.json();
+      if (data.message == 'InteractiveRobotics'){
+        setUrl(url);
+        setVerified(true);
+      }else{
+        setVerified(false);
+      }
+    }
+    catch{
+      setVerified(false);
+    }
+  }
+
+  async function coordinateCall(){
+    await fetch(`http://${url}/movebycoordinates`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+          x: armCoordsNew[0],
+          y: armCoordsNew[1],
+          z: armCoordsNew[2],
+      }) 
+    })
+    setArmCoordsOriginal(armCoordsNew);
+  }
+
 
   return (
     <div className="w-full flex items-center flex-col h-full">
+
+      <AlertDialog open={ verified ? false : true}>
+
+        <AlertDialogContent>
+
+          <AlertDialogHeader>
+            <AlertDialogTitle>Simulation Server URL</AlertDialogTitle>
+            
+              <AlertDialogDescription>
+              Enter the URL of the machine running the simulation server. 
+              It can be found at localhost:5000 on the machine running the server.
+              <Input type='text' placeholder="192.168.1.1" id="ipaddr"/>
+              {verified===false && <div className="text-red-500">Invalid URL</div>}
+              </AlertDialogDescription>
+
+
+            </AlertDialogHeader>
+
+          
+          <AlertDialogFooter>
+            <AlertDialogAction onClick={() => {
+
+             const ipInp = document.getElementById('ipaddr') as HTMLInputElement;
+             verifyUrl(ipInp.value); 
+            
+            }}>Continue</AlertDialogAction>
+          </AlertDialogFooter>
+
+        </AlertDialogContent>
+
+      </AlertDialog>
+
+
+
     <Card className="w-3/4 h-screen rounded-none">
 
       <div className="mx-auto p-8 border-b text-center">
@@ -71,7 +168,7 @@ export default function Home() {
                 
                 <Separator/>
 
-                {['Joint 1', 'Joint 2', 'Joint 2','Joint 2','Joint 2','Joint 2','Joint 2','Joint 2',].map((joint, i) => {
+                {['Joint 1', 'Joint 2', 'Joint 2','Joint 2','Joint 2','Joint 2'].map((joint, i) => {
                 return (
                 <div key={i} className="flex grid grid-cols-3 space-x-4 w-full ">
                   <div className="text-center text-base h-full align-middle flex flex-col justify-center">{joint}</div>
@@ -97,7 +194,7 @@ export default function Home() {
               </CardContent>
 
               <CardFooter className="text-right justify-end flex">
-                <Button>Save and Move</Button>
+                <Button onClick={() => jointsCall()}>Save and Move</Button>
               </CardFooter>
             </TabsContent>
 
@@ -139,7 +236,7 @@ export default function Home() {
               </CardContent>
 
               <CardFooter className="text-right justify-end flex">
-                <Button>Save and Move</Button>
+                <Button onClick={coordinateCall}>Save and Move</Button>
               </CardFooter>
 
           </TabsContent>
