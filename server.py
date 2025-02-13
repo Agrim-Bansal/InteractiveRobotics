@@ -38,8 +38,8 @@ def api_pickup():
     data = request.json
     print(data)
     obj = data.get("object") 
-    obj.capitalize()
-    
+    obj=obj.capitalize()
+    print(obj)  
     if obj :
         curr_object=obj
         obj="/"+obj
@@ -51,8 +51,6 @@ def api_pickup():
         return jsonify({"result": result})
     elif (not obj):
         return jsonify({"error": "Missing object in request"}), 400
-    else:
-        return jsonify({"error": "Already an object has been picked,first drop it"}),400
 
 @app.route('/drop', methods=['POST'])
 def api_drop():
@@ -118,7 +116,7 @@ def api_joint1():
     data = request.json
     print("reachedhere")
     degree = data.get("degree")
-    if degree is None:
+    if degree is None:      
         return jsonify({"error": "Missing 'degree' field"}), 400
     moveJoint(1, degree)
     result = "successful"
@@ -316,8 +314,17 @@ def api_moveobject11():
     result = "successful"
     return jsonify({"result": result})
 
+@app.route('/gripperclose', methods=['POST'])
+def api_gripperclose():
+    gripperClose()  
+    result = "successful"
+    return jsonify({"result": result})
 
-
+@app.route('/gripperopen', methods=['POST'])
+def api_gripperopen():
+    gripperOpen() 
+    result = "successful"
+    return jsonify({"result": result})
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8000, debug=False, threaded=False)
