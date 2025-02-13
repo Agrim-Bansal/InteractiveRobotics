@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsTrigger } from "@/components/ui/tabs";
 import { TabsList } from "@radix-ui/react-tabs";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { useEffect, useState } from "react";
-import { AlertDialog, AlertDialogAction, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 
 
 export default function Home() {
@@ -24,6 +24,10 @@ export default function Home() {
   const [isStackActive, setIsStackActive] = useState<number | undefined>();
   const [stack, setStack] = useState<string[]>([]);
   const [stackingObjects, setStackingObjects] = useState<string[]>(['Cuboid', 'Cylinder', 'Prism', 'Bowl', 'Cup1']);
+  const [objectActiveManipulate, setObjectActiveManipulate] = useState<number | undefined>();
+  const objectList = ['Cuboid', 'Cylinder', 'Prism', 'Bowl', 'Cup1']
+  const predefPaths = ['Circle', 'Square', 'Hexagon', 'Heart'];
+  const [activePath, setActivePath] = useState<number | undefined>();
 
   useEffect(()=>{
     getPosition();
@@ -114,6 +118,21 @@ export default function Home() {
 
   }
 
+  async function pathCall(){
+    if (activePath == undefined){
+      return;
+    }
+    await fetch(`http://${url}/moveinpath`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+          path : predefPaths[activePath].toLowerCase(),
+      }) 
+    })
+  }
+
   return (
     <div className="w-full flex items-center flex-col h-full">
 
@@ -161,10 +180,12 @@ export default function Home() {
 
         <Tabs defaultValue="joint" className="w-full h-[75vh]">
 
-          <TabsList className="grid grid-cols-3 bg-muted p-1 w-fit mx-auto">
+          <TabsList className="grid grid-cols-5 bg-muted p-1 w-fit mx-auto">
             <TabsTrigger value="joint">Joint Control</TabsTrigger>
             <TabsTrigger value="arm">Arm Control</TabsTrigger>
+            <TabsTrigger value="object">Object Control</TabsTrigger>
             <TabsTrigger value="stack">Stacking</TabsTrigger>
+            <TabsTrigger value="macros">Macros</TabsTrigger>
           </TabsList>
 
           <Card className="py-4 mx-16 px-4 h-full">
@@ -254,6 +275,60 @@ export default function Home() {
 
           </TabsContent>
 
+          <TabsContent value="object" className="h-full">
+              
+              <CardContent className="w-full space-y-4">
+              
+              <div className="flex">
+
+              <div className="flex flex-col w-5/12">
+                    <div className="text-xl font-semibold my-2 text-center space-y-2">Object</div>
+                    {
+                      objectList.map((object, i) => {
+                        return (
+                            <div key={i} className={`flex-1/6 text-left border my-2 p-2 rounded-lg ${(objectActiveManipulate==i) && 'bg-blue-200'}`} onClick={()=>setObjectActiveManipulate(i)}>{object}</div>
+                        )
+                      })
+                    }
+              </div>
+
+              <div className="space-y-4">
+                <div className="flex justify-center space-x-4 text-xl font-semibold text-center">
+                  <div>Position</div>
+                </div>
+                
+                <Separator/>
+
+                {['X Coord', 'Y Coord', 'Z Coord'].map((joint, i) => {
+                return (
+
+                <div key={i} className="flex grid grid-cols-2 space-x-4 w-full">
+                  <div className="flex-1/6 text-center">{joint}</div>
+                  <div>
+                  <Input type='number' value={ armCoordsNew[i] } onChange={(e) => setArmCoordsNew(armCoordsNew.map((v, j) => {
+                    if (j == i){
+                      return e.target.valueAsNumber;
+                    }
+                    return v;
+                  } )) } />
+                  </div>
+                  
+                </div>
+
+                )})}
+              </div>
+              
+
+              </div>
+
+              </CardContent>
+
+              <CardFooter className="text-right justify-end flex">
+                <Button onClick={coordinateCall}>Move the Object</Button>
+              </CardFooter>
+
+          </TabsContent>
+
           <TabsContent value="stack">
               
               <CardContent className="space-y-4 w-full">
@@ -275,7 +350,7 @@ export default function Home() {
                     <Button onClick={removeFromStack}><ArrowLeft/></Button>
                   </div>
 
-                  <div className="flex justify-between flex-col w-5/12">
+                  <div className="flex flex-col w-5/12">
                     
                     <div className="text-xl font-semibold my-2 text-center space-y-2">Stack</div>
                     
@@ -299,6 +374,31 @@ export default function Home() {
 
           </TabsContent>
 
+          <TabsContent value="macros">
+              
+              <CardContent className="space-y-4 w-full">
+                
+                <div className="flex justify-evenly w-full h-[50vh]">
+                  <div className="flex flex-col w-8/12">
+                    <div className="text-xl font-semibold my-2 text-center space-y-2">Predefined Paths</div>
+                    {
+                      predefPaths.map((path, i) => {
+                        return (
+                            <div key={i} className={`flex-1/6 text-left border my-2 p-2 rounded-lg ${(activePath==i) && 'bg-blue-200'}`} onClick={()=>setActivePath(i)}>{path}</div>
+                        )
+                      })
+                    }
+                  </div>
+                </div>
+              </CardContent>
+
+              <CardFooter className="text-right justify-end flex">
+                <Button onClick={()=>pathCall()}>Run Macro</Button>
+              </CardFooter>
+
+
+          </TabsContent>
+          
           </Card>
 
           

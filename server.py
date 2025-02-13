@@ -12,9 +12,8 @@ curr_object=""
 
 @app.route('/')
 def get_client_ip():
-
     client_ip = request.remote_addr
-    return f" IP: {client_ip}:5000"
+    return f" IP: {client_ip}:8000"
 
 @app.route('/verify/')
 def verify():
@@ -203,7 +202,7 @@ def api_moveinpath():
     data = request.json
     path_type = data.get("path")
     x,y,z=getTipPosition()
-    r = 0.1
+    r = 0.3
     if path_type is None:
         return jsonify({"error": "Missing path"}), 400
     if path_type == "circle":
@@ -226,6 +225,9 @@ def api_moveinpath():
             centre=[x+r*x/(math.sqrt(x*x+y*y)),y+r*y/(math.sqrt(x*x+y*y)),z]
 
         moveinpath(path_type, r, centre)
+
+    elif path_type == "heart":
+        drawHeart()
 
     else:
         return jsonify({"error": "Unsupported path type"}), 400
