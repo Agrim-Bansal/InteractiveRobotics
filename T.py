@@ -6,15 +6,15 @@ import json
 # for 7-DOF robot
 
 PICKUP_PRESETS = {
+    '': (0,0,0),
     '/Cuboid': (0.05, 0, 0.1),
-    '/Cup0': (0.07, 30, 0.05),
-    '/Cup1': (0.04, 10, 0.05),
-    '/Cup2': (0.07, 15, 0.07),
-    '/Cup3': (0.07, 15, 0.1),
-    '/Bowl': (0.06, 30, 0.1),
-    '/Prism': (0.07, 15, 0.1),
+    '/Cup': (0.07, 30, 0.05),
+    '/Bowl': (0.08, 30, 0.1),
+    '/Prism': (0.1, 15, 0.15),
+    '/Cross': (0.1, 15, 0.15),
     '/Cylinder': (0.03, 0, 0.1),
-    '/Pot': (0.09, 20, 0.1)
+    '/Pot': (0.09, 20, 0.1),
+    '/Saucer': (0.06, 20, 0.04)
 }
 
 
@@ -84,13 +84,12 @@ def moveArc(POS, delay=0, stepsPerUnit=500):
 
 def pickup(name, delay=0, stepsPerUnit=500, fingerAngle=30):
     # Get the current position of the target dummy
+    moveJoints([None, 0, 0, 0, -90, None])
+    z, fingerAngle, ctocdist = PICKUP_PRESETS[name]
+    sim.callScriptFunction('fingerAngle', GRIPPER_CONT, fingerAngle)
     obj = sim.getObject(name)
     POS = sim.getObjectPosition(obj, -1)
-    z = 0.06
-    if(name in PICKUP_PRESETS):
-        z, fingerAngle, ctocdist = PICKUP_PRESETS[name]
     POS[2] = POS[2] + z
-    sim.callScriptFunction('fingerAngle', GRIPPER_CONT, fingerAngle)
     moveArc(POS)
     sim.callScriptFunction('close', GRIPPER_CONT)
     time.sleep(1)
@@ -117,17 +116,17 @@ def stack(onObjName):
     POS[2] = POS[2] + 0.21
     moveArc(POS)
     drop()
-    POS[2] = POS[2] + 0.2
+    POS[2] = POS[2] + PICKUP_PRESETS[onObjName][2] + 0.11 - PICKUP_PRESETS[CURRENT_PICKED_OBJECT][2]
+
     moveLine(POS)
 
 def stacktheobjects(name, onObjName):
     obj = sim.getObject(name)
     onObj = sim.getObject(onObjName)
-    moveJoints([None, 0, 0, 0, -90, None])
     pickup(name)
     moveJoints([None, 0, 0, 0, -90, None])
     POS = sim.getObjectPosition(onObj, -1)
-    POS[2] = POS[2] + PICKUP_PRESETS[onObjName][2] + PICKUP_PRESETS[name][2] + 0.01
+    POS[2] = POS[2] + PICKUP_PRESETS[name][0] + PICKUP_PRESETS[onObjName][2] + 0.01
     moveArc(POS)
     drop()
     POS[2] = POS[2] + 0.2

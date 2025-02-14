@@ -316,7 +316,6 @@ def api_moveobject11():
         moveLine([x, y, z])
     else:
         moveArc([x, y, z])
-    drop()
     result = "successful"
     return jsonify({"result": result})
 
