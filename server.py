@@ -289,7 +289,7 @@ def api_getalljoints2():
     result = "successful"
     jointPosDeg = list(map(lambda x : round(x*180/3.14159, 2), joint_positions))
     jointPosDeg.append(round(getFingerAngle()*180/3.14159, 2))
-    jointPosDeg.append(getGripperState)
+    jointPosDeg.append(getGripperState())
 
     return jsonify({"result": result, "joint_positions": jointPosDeg})
 
