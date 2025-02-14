@@ -119,11 +119,11 @@ streamlit run streamlit_app.py
 | Command                                      | Description                                                                                           |
 |----------------------------------------------|-------------------------------------------------------------------------------------------------------|
 | `JOINT{I} { "degree": <value> }`             | Moves joint I by the specified magnitude; positive means 'FORWARD', negative means 'BACKWARD'. |
-| `PICKUP { "object": "Cuboid" , "Cylinder" , "Prism" , "Cup" , "Bowl" , "Pot" }` | Picks up the specified object. |
+| `PICKUP { "object": "Cuboid" , "Cylinder" , "Prism" , "Cup" , "Bowl" , "Pot", "Saucer", "Cross" }` | Picks up the specified object. |
 | `DROP {}`| Releases the currently held object.                                                                   |
 | `STACK { "object": "<object_name>" }` | Stacks the given object on another.                                                                   |
 | `MOVE { "direction": ["F", "B", "R", "L"], "magnitude": <value> }` | Moves the arm in the given direction(s) by the specified magnitude.                      |
 | `MOVEINPATH { "path": "square" , "circle" , "hexagon" , "heart" }` | Moves the robotic arm along the specified path shape.                                      |
 | `MOVEBYCOORDINATES { "l": [x, y, z] }`       | Moves the arm to the given (x, y, z) coordinates.                                                     |
-| `MOVEOBJECT { "object": "Cuboid" , "Cylinder" , "Prism" , "Cup" , "Bowl" , "Pot", "l": [x, y, z] }` | Moves the specified object to the desired coordinates.  |
+| `MOVEOBJECT { "object": "Cuboid" , "Cylinder" , "Prism" , "Cup" , "Bowl" , "Pot", "Saucer", "Cross", "l": [x, y, z] }` | Moves the specified object to the desired coordinates.  |
 | `STACKTHEOBJECTS { "objects": [<list of objects>] }` | Stacks the objects one over the other in the specified order. |
