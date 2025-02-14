@@ -2,15 +2,14 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-// import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsTrigger } from "@/components/ui/tabs";
 import { TabsList } from "@radix-ui/react-tabs";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { useEffect, useState } from "react";
 import { AlertDialog, AlertDialogAction, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-// import { Label } from "@/components/ui/label"
-// import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { Label } from "@/components/ui/label"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 
 
 export default function Home() {
@@ -19,25 +18,22 @@ export default function Home() {
   const [url, setUrl] = useState<string | undefined>();
   const [verified, setVerified] = useState<boolean | undefined>();
   const [jointPosOriginal, setJointPosOriginal] = useState([0,0,0,0,0,0,0,0]);
-  const [jointPosNew, setJointPosNew] = useState([0,0,0,0,0,0]);
+  const [jointPosNew, setJointPosNew] = useState([0,0,0,0,0,0,0]);
   const [armCoordsOriginal, setArmCoordsOriginal] = useState([0,0,0,0]);
   const [armCoordsNew, setArmCoordsNew] = useState([0,0,0,0]);
   const [objectActive, setObjectActive] = useState<number | undefined>();
   const [isStackActive, setIsStackActive] = useState<number | undefined>();
   const [stack, setStack] = useState<string[]>([]);
-  const [stackingObjects, setStackingObjects] = useState<string[]>(['Pot','Cuboid', 'Cylinder', 'Prism', 'Bowl', 'Cup1', 'Cup0', 'Cup2', 'Cup3']);
+  const [stackingObjects, setStackingObjects] = useState<string[]>(['Cuboid', 'Pot', 'Cylinder', 'Prism', 'Bowl', 'Cup', 'Saucer', 'Cross']);
   const [objectActiveManipulate, setObjectActiveManipulate] = useState<number | undefined>();
-  const objectList = ['Cuboid', 'Pot', 'Cylinder', 'Prism', 'Bowl', 'Cup1', 'Cup0', 'Cup2', 'Cup3'];
+  const objectList = ['Cuboid', 'Pot', 'Cylinder', 'Prism', 'Bowl', 'Cup', 'Saucer', 'Cross'];
   const predefPaths = ['Circle', 'Square', 'Hexagon', 'Heart'];
   const [activePath, setActivePath] = useState<number | undefined>();
   const [objMoveCoord, setObjMoveCoord] = useState([0,0,0]);
 
-  useEffect(()=>{
-    getPosition();
-  }, [url])
 
-  async function getPosition(){
-    const res = await fetch(`http://${url}/getalljoints`)
+  async function getPosition(urlArg:(string|undefined) = url){
+    const res = await fetch(`http://${urlArg}/getalljoints2`)
     const data = await res.json();
     setJointPosOriginal(data.joint_positions);
     setJointPosNew(data.joint_positions);
@@ -60,7 +56,6 @@ export default function Home() {
   }
 
   useEffect(()=>{
-    console.log(jointPosOriginal);
   }, [jointPosOriginal]) ;
 
   
@@ -71,6 +66,7 @@ export default function Home() {
       if (data.message == 'InteractiveRobotics'){
         setUrl(url);
         setVerified(true);
+        getPosition(url);
       }else{
         setVerified(false);
       }
@@ -81,7 +77,6 @@ export default function Home() {
   }
   
   async function jointsCall(){
-    console.log(url);
     await fetch(`http://${url}/alljoints`, {
       method: 'POST',
       headers: {
@@ -194,7 +189,7 @@ export default function Home() {
               <AlertDialogDescription>
               Enter the URL of the machine running the simulation server. 
               It can be found at http://localhost:8000 on the machine running the server.
-              <Input type='text' placeholder="192.168.1.1" id="ipaddr"/>
+              <Input type='text' placeholder="192.168.1.1:8000" id="ipaddr"/>
               {verified===false && <div className="text-red-500">Invalid URL</div>}
               </AlertDialogDescription>
 
@@ -208,7 +203,7 @@ export default function Home() {
              const ipInp = document.getElementById('ipaddr') as HTMLInputElement;
              verifyUrl(ipInp.value); 
             
-            }}>Continue</AlertDialogAction>
+            }}>Connect</AlertDialogAction>
           </AlertDialogFooter>
 
         </AlertDialogContent>
@@ -221,7 +216,7 @@ export default function Home() {
 
       <div className="mx-auto p-8 border-b text-center">
         <h1 className="text-3xl font-bold">Interactive Robotics</h1>
-        <p className="text-lg font-extralight">GUI for controlling the simulation of a robot</p>
+        <p className="text-lg font-extralight"> Tech Wale Thekedar </p>
       </div>
 
       <div className="space-y-4 px-16 text-lg my-2">
@@ -250,7 +245,7 @@ export default function Home() {
                 
                 <Separator/>
 
-                {['Joint 1', 'Joint 2', 'Joint 3','Joint 4','Joint 5','Joint 6'].map((joint, i) => {
+                {['Joint 1', 'Joint 2', 'Joint 3','Joint 4','Joint 5','Joint 6', 'Finger Angle'].map((joint, i) => {
                 return (
                 <div key={i} className="flex grid grid-cols-3 space-x-4 w-full ">
                   <div className="text-center text-base h-full align-middle flex flex-col justify-center">{joint}</div>
@@ -278,6 +273,29 @@ export default function Home() {
                   </div>
                 </div>
                 )})}
+                <div className="flex grid grid-cols-3 space-x-4 w-full ">
+                <div className="text-center text-base h-full align-middle flex flex-col justify-center">Grip</div>
+                <RadioGroup defaultValue="1" className="flex grid grid-cols-3">
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="1" id="option-one"  onClick={(e) => setJointPosNew(jointPosNew.map((v, j) => {
+                    if (j == 7){
+                      return parseInt((e.target as HTMLInputElement).value);
+                    }
+                    return v;
+                  } )) } />
+                    <Label htmlFor="option-one">Close</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="0" id="option-two" onClick={(e) => setJointPosNew(jointPosNew.map((v, j) => {
+                    if (j == 7){
+                      return parseInt((e.target as HTMLInputElement).value);
+                    }
+                    return v;
+                  } )) } />
+                    <Label htmlFor="option-two">Open</Label>
+                  </div>
+                </RadioGroup>
+                </div>
 
               </CardContent>
 
@@ -327,23 +345,6 @@ export default function Home() {
                 </div>
 
                 )})}
-
-                {/* <div className="flex grid grid-cols-3 space-x-4 w-full">
-                  <div className="flex-1/6 text-center">Grasp</div>
-                  
-                  <div>
-                    <RadioGroup defaultValue="1" className="flex" onChange={(e) => console.log(e)}>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="1" id="option-one" />
-                        <Label htmlFor="option-one">Open</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="2" id="option-two" />
-                        <Label htmlFor="option-two">Close</Label>
-                      </div>
-                    </RadioGroup>
-                  </div>
-                </div> */}
 
               </CardContent>
 
