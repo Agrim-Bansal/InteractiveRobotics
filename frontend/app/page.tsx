@@ -283,7 +283,7 @@ export default function Home() {
                     }
                     return v;
                   } )) } />
-                    <Label htmlFor="option-one">Close</Label>
+                    <Label htmlFor="option-one">Open</Label>
                   </div>
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="0" id="option-two" onClick={(e) => setJointPosNew(jointPosNew.map((v, j) => {
@@ -292,7 +292,7 @@ export default function Home() {
                     }
                     return v;
                   } )) } />
-                    <Label htmlFor="option-two">Open</Label>
+                    <Label htmlFor="option-two">Close</Label>
                   </div>
                 </RadioGroup>
                 </div>
