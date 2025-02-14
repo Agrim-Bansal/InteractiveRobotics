@@ -5,7 +5,7 @@ The robot has 7 degrees of freedom and is controlled by a python script that sen
 
 Note : Move to src directory and follow the commands for each respective interface.
 
-# CoppeliaSim Simulation - Setup
+# #CoppeliaSim Simulation - Setup
 ## Installation
 Download and Install the CoppeliaSim from the official website: https://www.coppeliarobotics.com/downloads.
 Load the scene InteractiveRobotics.ttt in CoppeliaSim.
@@ -26,8 +26,9 @@ The server will start running on port 8000.
 
 ***To find the IP address of the server, visit http://localhost:8000 in your browser. The IP address will be displayed on the page.***
 
+*** The Interfaces can run on any device on the same local network as the server. Following are the instructions to run the interfaces. ***s
 
-# Web Interface
+# #Web Interface
 ## Getting Started
 First move to the web-interface directory and install the dependencies:
 
@@ -64,7 +65,7 @@ The webapp has 5 tabs : Joint Control, Arm Control, Object Control, Stacking and
 <br/>
 
 
-# CoppeliaSim Robotic Arm CLI
+# #CLI
 
 Install the Dependencies
 ```sh
@@ -94,7 +95,7 @@ The program will ask for the IP address of the server running the CoppeliaSim si
 | Exit Command           | `exit`                                                                 |
 
 
-# Voice Interface
+# #Voice Interface
 ## Installation & Setup
 
 Move to directory and install Dependencies
