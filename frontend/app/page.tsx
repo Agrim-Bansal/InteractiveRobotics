@@ -193,7 +193,7 @@ export default function Home() {
             
               <AlertDialogDescription>
               Enter the URL of the machine running the simulation server. 
-              It can be found at localhost:5000 on the machine running the server.
+              It can be found at http://localhost:8000 on the machine running the server.
               <Input type='text' placeholder="192.168.1.1" id="ipaddr"/>
               {verified===false && <div className="text-red-500">Invalid URL</div>}
               </AlertDialogDescription>
