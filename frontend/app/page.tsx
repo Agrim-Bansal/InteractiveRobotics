@@ -423,6 +423,7 @@ export default function Home() {
                 <div className="flex justify-evenly w-full h-[50vh]">
                   <div className="flex flex-col w-5/12">
                     <div className="text-xl font-semibold my-2 text-center space-y-2">Object</div>
+                    <div className="h-[50vh] overflow-y-auto">
                     {
                       stackingObjects.map((object, i) => {
                         return (
@@ -430,8 +431,8 @@ export default function Home() {
                         )
                       })
                     }
+                    </div>
                   </div>
-
                   <div className="flex flex-col h-full w-1/16 space-y-4 justify-center my-auto">
                     <Button onClick={addToStack}><ArrowRight/></Button>
                     <Button onClick={removeFromStack}><ArrowLeft/></Button>
@@ -440,6 +441,7 @@ export default function Home() {
                   <div className="flex flex-col w-5/12">
                     
                     <div className="text-xl font-semibold my-2 text-center space-y-2">Stack</div>
+                    <div className="h-[50vh] overflow-y-auto">
                     
                     {
                       stack.map((object, i) => {
@@ -448,7 +450,7 @@ export default function Home() {
                         )
                       })
                     }
-
+                    </div>
                   </div>
 
                 </div>
