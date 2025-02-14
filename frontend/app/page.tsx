@@ -9,6 +9,8 @@ import { TabsList } from "@radix-ui/react-tabs";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { useEffect, useState } from "react";
 import { AlertDialog, AlertDialogAction, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+// import { Label } from "@/components/ui/label"
+// import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 
 
 export default function Home() {
@@ -167,14 +169,13 @@ export default function Home() {
   }
 
   async function dropObjectCall() { 
-
     await fetch(`http://${url}/drop`, {
       method: 'POST', 
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-          object : objectList[objectActiveManipulate],
+          object : 1,
       })
     })
   }
@@ -296,7 +297,7 @@ export default function Home() {
                 
                 <Separator/>
 
-                {['X Coord', 'Y Coord', 'Z Coord','Grasp',].map((joint, i) => {
+                {['X Coord', 'Y Coord', 'Z Coord'].map((joint, i) => {
                 return (
 
                 <div key={i} className="flex grid grid-cols-3 space-x-4 w-full">
@@ -326,6 +327,24 @@ export default function Home() {
                 </div>
 
                 )})}
+
+                {/* <div className="flex grid grid-cols-3 space-x-4 w-full">
+                  <div className="flex-1/6 text-center">Grasp</div>
+                  
+                  <div>
+                    <RadioGroup defaultValue="1" className="flex" onChange={(e) => console.log(e)}>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="1" id="option-one" />
+                        <Label htmlFor="option-one">Open</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="2" id="option-two" />
+                        <Label htmlFor="option-two">Close</Label>
+                      </div>
+                    </RadioGroup>
+                  </div>
+                </div> */}
+
               </CardContent>
 
               <CardFooter className="text-right justify-end flex">
