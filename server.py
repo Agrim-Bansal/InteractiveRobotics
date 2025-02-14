@@ -71,23 +71,22 @@ def api_stack():
     data = request.json
     second_object = data.get("object")
     if curr_object:
-        print("1")
-        if second_object:
-            print(2)
-            if second_object!=curr_object:
-                print(3)
-                second_object="/"+second_object
-                stack(second_object)
-                curr_object=""
-                result = "successful" 
-                return jsonify({"result": result})
-            else:
-                return jsonify({"error": "select different object"}), 400
-
+        drop()
+    if second_object:
+        print(2)
+        if second_object!=curr_object:
+            print(3)
+            second_object="/"+second_object
+            stack(second_object)
+            curr_object=""
+            result = "successful" 
+            return jsonify({"result": result})
         else:
-            return jsonify({"error": "Missing 'second_object' in request"}), 400
+            return jsonify({"error": "select different object"}), 400
+
     else:
-        return jsonify({"error": "pick an object first"}), 400
+        return jsonify({"error": "Missing 'second_object' in request"}), 400
+
 
 @app.route('/move', methods=['POST'])
 def api_move():
@@ -209,28 +208,16 @@ def api_moveinpath():
     path_type = data.get("path")
     x,y,z=getTipPosition()
     r = 0.2
+    centre=[0,0.5,0.4]
     if path_type is None:
         return jsonify({"error": "Missing path"}), 400
     if path_type == "circle":
             r=0.15
-            if ((x*x+y*y)>r*r+0.08):
-                centre=[x-r*x/(math.sqrt(x*x+y*y)),y-r*y/(math.sqrt(x*x+y*y)),z]
-            else:
-                centre=[x+r*x/(math.sqrt(x*x+y*y)),y+r*y/(math.sqrt(x*x+y*y)),z]
-
             moveinpath(path_type, r, centre)
     elif path_type == "square":
-        if ((x*x+y*y)>r*r+0.08):
-             centre=[x-r*x/(math.sqrt(x*x+y*y)),y-r*y/(math.sqrt(x*x+y*y)),z]
-        else:
-             centre=[x+r*x/(math.sqrt(x*x+y*y)),y+r*y/(math.sqrt(x*x+y*y)),z]
         moveinpath( path_type, r,centre)
     elif path_type == "hexagon":
         r=0.15
-        if ((x*x+y*y)>r*r+0.08):
-                centre=[x-r*x/(math.sqrt(x*x+y*y)),y-r*y/(math.sqrt(x*x+y*y)),z]
-        else:
-            centre=[x+r*x/(math.sqrt(x*x+y*y)),y+r*y/(math.sqrt(x*x+y*y)),z]
 
         moveinpath(path_type, r, centre)
 
@@ -283,6 +270,8 @@ def api_stacktheobjects():
         drop()
         curr_object=""
     for i in range(1,len(obj)):
+        obj[i]=obj[i].capitalize()
+        obj[i-1]=obj[i-1].capitalize()
         stacktheobjects(f"/{obj[i]}",f"/{obj[i-1]}")
     result="successful"
     return jsonify({"result": result})
@@ -294,6 +283,15 @@ def api_getalljoints():
     jointPosDeg = list(map(lambda x : round(x*180/3.14159, 2), joint_positions))
     return jsonify({"result": result, "joint_positions": jointPosDeg})
 
+@app.route('/getalljoints2', methods=['GET'])
+def api_getalljoints2():
+    joint_positions = getJointPositions()  
+    result = "successful"
+    jointPosDeg = list(map(lambda x : round(x*180/3.14159, 2), joint_positions))
+    jointPosDeg.append(round(getFingerAngle()*180/3.14159, 2))
+    jointPosDeg.append(getGripperState)
+
+    return jsonify({"result": result, "joint_positions": jointPosDeg})
 
 @app.route('/moveobject', methods=['POST'])
 def api_moveobject11():

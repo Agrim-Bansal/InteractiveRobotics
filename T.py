@@ -8,7 +8,7 @@ import json
 PICKUP_PRESETS = {
     '': (0,0,0),
     '/Cuboid': (0.05, 0, 0.1),
-    '/Cup': (0.07, 30, 0.05),
+    '/Cup': (0.07, 15, 0.05),
     '/Bowl': (0.08, 30, 0.1),
     '/Prism': (0.1, 15, 0.15),
     '/Cross': (0.1, 15, 0.15),
@@ -30,7 +30,8 @@ GRIPPER_CONT = sim.getScript(sim.scripttype_simulation, '/BarrettHand/GripperCon
 IK_SCRIPT = sim.getScript(sim.scripttype_simulation, '/IRB140/IKScript')
 CONNECTOR = sim.getObject('/BarrettHand/attachPoint')
 CURRENT_PICKED_OBJECT = -1
-
+FINGERANGLE = 45
+GRIPPEROPEN = 1
 
 def easeInOutSquare(cur, target, t):
     """
@@ -76,6 +77,8 @@ def moveArc(POS, delay=0, stepsPerUnit=500):
         angle = math.pi/2 if POS[1] > 0 else -math.pi/2
     else:
         angle = math.tanh(POS[1]/POS[0])
+        if(POS[0]<0):
+            angle-=math.pi
     moveJoint(1, angle*180/math.pi)
     time.sleep(1)
     moveLine(POS, delay=0.2, stepsPerUnit=stepsPerUnit)
@@ -86,6 +89,8 @@ def pickup(name, delay=0, stepsPerUnit=500, fingerAngle=30):
     # Get the current position of the target dummy
     moveJoints([None, 0, 0, 0, -90, None])
     z, fingerAngle, ctocdist = PICKUP_PRESETS[name]
+    global FINGERANGLE
+    FINGERANGLE = fingerAngle
     sim.callScriptFunction('fingerAngle', GRIPPER_CONT, fingerAngle)
     obj = sim.getObject(name)
     POS = sim.getObjectPosition(obj, -1)
@@ -143,6 +148,15 @@ def moveJoints(desired_angles):
     for i in range(6):
         if(desired_angles[i] != None):
             moveJoint(i+1, desired_angles[i])
+    
+    if(len(desired_angles)==8):
+        global FINGERANGLE
+        FINGERANGLE = desired_angles[6]
+        sim.callScriptFunction('fingerAngle', GRIPPER_CONT, desired_angles[6])
+        if(desired_angles[7]==0):
+            gripperClose()
+        elif(desired_angles[7]==1):
+            gripperOpen()
 
 def moveJointBy(joint_num, angle):
     joint_handle = sim.getObjectHandle(f'IRB140_joint{joint_num}')
@@ -159,10 +173,20 @@ def getTipPosition():
 def getObjectPosition(name):
     return sim.getObjectPosition(sim.getObject(name), -1)
 
+def getFingerAngle():
+    return FINGERANGLE
+
+def getGripperState():
+    return GRIPPEROPEN
+
 def gripperClose():
+    global GRIPPEROPEN
+    GRIPPEROPEN = 0
     sim.callScriptFunction('close', GRIPPER_CONT)
 
 def gripperOpen():
+    global GRIPPEROPEN
+    GRIPPEROPEN = 1
     sim.callScriptFunction('open', GRIPPER_CONT)
 
 def drawCircle(center, radius):
@@ -229,6 +253,7 @@ def drawHeart():
         time.sleep(0.001)
 
 sim.callScriptFunction('open', GRIPPER_CONT)
+print(getFingerAngle())
 # pickup('/Cuboid', fingerAngle=0)
 # moveLine([0, 0.5, 0.3])
 # drop()
