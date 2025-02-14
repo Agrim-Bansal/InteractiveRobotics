@@ -33,12 +33,12 @@ To find the IP address of your host machine when running a local server:
 
 Pick an Object
 ```sh
-pick -o [Cuboid|Cylinder|Prism]
+pick -o [Cuboid|Cylinder|Prism|Cross|Cup|Saucer|Pot|Bowl]
 ```
 
 Stack an Object
 ```sh
-stack -o [Cuboid|Cylinder|Prism]
+stack -o [Cuboid|Cylinder|Prism|Cross|Cup|Saucer|Pot|Bowl]
 ```
 
 
@@ -61,7 +61,7 @@ path -ml [circle|square|heart|hexagon]
 
 Stack Multiple Objects
 ```sh
-multistack -o [Cuboid|Cylinder|Prism] [Cuboid|Cylinder|Prism]
+multistack -o [Cuboid|Cylinder|Prism|Cross|Cup|Saucer|Pot|Bowl]
 ```
 
 
