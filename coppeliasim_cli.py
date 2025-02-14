@@ -10,18 +10,18 @@ import json
 def aesthetic():
     print(Fore.WHITE + """
 
-                                ____                       _ _       ____  _           
-                                / ___|___  _ __  _ __   ___| (_) __ _/ ___|(_)_ __ ___  
-                                | |   / _ \| '_ \| '_ \ / _ \ | |/ _` \___ \| | '_ ` _ \ 
-                                | |__| (_) | |_) | |_) |  __/ | | (_| |___) | | | | | | |
-                                \____\___/| .__/| .__/ \___|_|_|\__,_|____/|_|_| |_| |_|
-                                        |_|   |_|                                     
+                                                            ____                       _ _       ____  _           
+                                                            / ___|___  _ __  _ __   ___| (_) __ _/ ___|(_)_ __ ___  
+                                                            | |   / _ \| '_ \| '_ \ / _ \ | |/ _` \___ \| | '_ ` _ \ 
+                                                            | |__| (_) | |_) | |_) |  __/ | | (_| |___) | | | | | | |
+                                                            \____\___/| .__/| .__/ \___|_|_|\__,_|____/|_|_| |_| |_|
+                                                                    |_|   |_|                                     
 
                                 """)
     print(Fore.RED + 'Connecting to robot')
     init(autoreset=True)
     for _ in tqdm(range(100)):
-        time.sleep(0.01)
+        time.sleep(0.02)
     print(Fore.GREEN + 'Success: Robot is active')
 
 
@@ -46,9 +46,13 @@ def ipcheck(ip_address):
 def ipget():
     global ip_address
     global ip_port
-    ip_address = input("Enter the IP address of the robot: ").strip()
-    ip_port=input("Enter the port: ").strip()
-    ipcheck(ip_address)
+    try:
+        ip_address = input("Enter the IP address of the robot: ").strip()
+        ip_port=input("Enter the port: ").strip()
+        ipcheck(ip_address)
+    except Exception as e:
+        print(e)
+        ipget()
 
 def jsonconverter(args):
     return json.dumps(vars(args))
@@ -62,11 +66,10 @@ def send_request(endpoint, args):
         data=jsonconverter(args)
         response = requests.post(url, data , headers=headers)
         print(f"Response: {response.status_code}")
-        print(jsonconverter(args))
         print(data)
         print(url)
-        print(response)
-        print(type(data))
+
+
     except Exception as e:
         print(e)
 
@@ -118,7 +121,7 @@ def main():
 
         # Pick
         parser_pick = subparsers.add_parser("pick", help="Pick an object",exit_on_error=False)
-        parser_pick.add_argument("-o", "--object", choices=["Cuboid", "Cylinder", "Prism"], required=True, help="Object to pick")
+        parser_pick.add_argument("-o", "--object", choices=["Cuboid", "Cylinder", "Prism","Cross","Bowl","Cup","Pot","Saucer"], required=True, help="Object to pick")
         parser_pick.add_argument("-coord", "--coordinate", nargs=3, type=float, required=False, help="Pick-up coordinates")
 
         # Drop
@@ -126,7 +129,7 @@ def main():
 
         # Stack
         parser_stack = subparsers.add_parser("stack", help="Stack an object",exit_on_error=False)
-        parser_stack.add_argument("-o", "--object", choices=["Cuboid", "Cylinder", "Prism"], required=True, help="Object to stack")
+        parser_stack.add_argument("-o", "--object", choices=["Cuboid", "Cylinder", "Prism","Cross","Bowl","Cup","Pot","Saucer"], required=True, help="Object to stack")
 
         # Move
         parser_move = subparsers.add_parser("move", help="Move the robot",exit_on_error=False)
@@ -143,7 +146,7 @@ def main():
         parser_line.add_argument("-ml", "--moveline", choices=["circle","square","heart","hexagon"], required=True, help="Direction")
 
         parser_multistack = subparsers.add_parser("multistack", help="Stack multiple objects , Enter multiple object to stack at once",exit_on_error=False)
-        parser_multistack.add_argument("-o", "--objects", nargs='+', choices=["Cuboid", "Cylinder", "Prism"], required=True, help="Object to stack")
+        parser_multistack.add_argument("-o", "--objects", nargs='+', choices=["Cuboid", "Cylinder", "Prism","Cross","Bowl","Cup","Pot","Saucer"], required=True, help="Object to stack")
 
 
 
@@ -156,7 +159,7 @@ def main():
             if not user_input:
                 continue
             if user_input[0].lower() == "exit":
-                print("Exiting...","robot is going back to sleep....zzzzz")
+                print(Fore.CYAN+"Exiting...","robot is going back to sleep....zzzzz")
                 break
 
             args = parser.parse_args(user_input)
