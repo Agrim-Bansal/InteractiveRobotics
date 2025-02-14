@@ -114,7 +114,7 @@ streamlit run streamlit_app.py
 3. Provide the **Flask Server URL**.
 4. Click **Load Models** to start the system.
 
-### **Voice/Typed Commands Supported**
+### **Voice Commands Supported**
 
 | Command                                      | Description                                                                                           |
 |----------------------------------------------|-------------------------------------------------------------------------------------------------------|
