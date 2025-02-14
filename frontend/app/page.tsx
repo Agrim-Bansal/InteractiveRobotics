@@ -30,6 +30,7 @@ export default function Home() {
   const predefPaths = ['Circle', 'Square', 'Hexagon', 'Heart'];
   const [activePath, setActivePath] = useState<number | undefined>();
   const [objMoveCoord, setObjMoveCoord] = useState([0,0,0]);
+  const [errMsg, setErrMsg] = useState<string | undefined>();
 
 
   async function getPosition(urlArg:(string|undefined) = url){
@@ -75,6 +76,10 @@ export default function Home() {
       setVerified(false);
     }
   }
+
+  useEffect(()=>{
+    setErrMsg(undefined);
+  }, [armCoordsNew]);
   
   async function jointsCall(){
     await fetch(`http://${url}/alljoints`, {
@@ -91,6 +96,21 @@ export default function Home() {
   }
 
   async function coordinateCall(){
+    const [x,y,z] = armCoordsNew;
+    if (z<10 || z>80 ){
+      setErrMsg('Z coordinate out of bounds');
+      return;
+    }else if (z>10 && z<50 && (x*x + y*y > 6500 || x*x + y*y < 1500) ){
+      setErrMsg('X and Y coordinates out of bounds');
+      return;
+    }else if (z>50 && z<80 && x*x + y*y > 4000 ){
+      setErrMsg('X and Y coordinates out of bounds');
+      return;
+    }
+
+
+
+
     await fetch(`http://${url}/movebycoordinates`, {
       method: 'POST',
       headers: {
@@ -345,7 +365,9 @@ export default function Home() {
                 </div>
 
                 )})}
-
+                { 
+                errMsg && <div className="text-red-500">{errMsg}</div>
+                }
               </CardContent>
 
               <CardFooter className="text-right justify-end flex">
